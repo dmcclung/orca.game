@@ -8,11 +8,11 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 import "./ITraits.sol";
-import "./IWoolf.sol";
+import "./IOrca.sol";
 import "./IBerg.sol";
 import "./Krill.sol";
 
-contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
+contract Orca is IOrca, ERC721Enumerable, Ownable, Pausable {
 
   // mint price
   uint256 public constant MINT_PRICE = .069420 ether;
@@ -24,7 +24,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
   uint16 public minted;
 
   // mapping from tokenId to a struct containing the token's traits
-  mapping(uint256 => SheepWolf) public tokenTraits;
+  mapping(uint256 => PenguinOrca) public tokenTraits;
   // mapping from hashed(tokenTrait) to the tokenId it's associated with
   // used to ensure there are no duplicates
   mapping(uint256 => uint256) public existingCombinations;
@@ -148,7 +148,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
     }
     
     if (totalWoolCost > 0) wool.burn(_msgSender(), totalWoolCost);
-    if (stake) barn.addManyToBarnAndPack(_msgSender(), tokenIds);
+    if (stake) barn.addManyToBergAndPack(_msgSender(), tokenIds);
   }
 
   /** 
@@ -185,7 +185,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
    * @param seed a pseudorandom 256 bit number to derive traits from
    * @return t - a struct of traits for the given token ID
    */
-  function generate(uint256 tokenId, uint256 seed) internal returns (SheepWolf memory t) {
+  function generate(uint256 tokenId, uint256 seed) internal returns (PenguinOrca memory t) {
     t = selectTraits(seed);
     if (existingCombinations[structToHash(t)] == 0) {
       tokenTraits[tokenId] = t;
@@ -217,7 +217,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
    */
   function selectRecipient(uint256 seed) internal view returns (address) {
     if (minted <= PAID_TOKENS || ((seed >> 245) % 10) != 0) return _msgSender(); // top 10 bits haven't been used
-    address thief = barn.randomWolfOwner(seed >> 144); // 144 bits reserved for trait selection
+    address thief = barn.randomOrcaOwner(seed >> 144); // 144 bits reserved for trait selection
     if (thief == address(0x0)) return _msgSender();
     return thief;
   }
@@ -227,9 +227,9 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
    * @param seed a pseudorandom 256 bit number to derive traits from
    * @return t -  a struct of randomly selected traits
    */
-  function selectTraits(uint256 seed) internal view returns (SheepWolf memory t) {    
-    t.isSheep = (seed & 0xFFFF) % 10 != 0;
-    uint8 shift = t.isSheep ? 0 : 9;
+  function selectTraits(uint256 seed) internal view returns (PenguinOrca memory t) {    
+    t.isPenguin = (seed & 0xFFFF) % 10 != 0;
+    uint8 shift = t.isPenguin ? 0 : 9;
     seed >>= 16;
     t.fur = selectTrait(uint16(seed & 0xFFFF), 0 + shift);
     seed >>= 16;
@@ -255,10 +255,10 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
    * @param s the struct to pack into a hash
    * @return the 256 bit hash of the struct
    */
-  function structToHash(SheepWolf memory s) internal pure returns (uint256) {
+  function structToHash(PenguinOrca memory s) internal pure returns (uint256) {
     return uint256(bytes32(
       abi.encodePacked(
-        s.isSheep,
+        s.isPenguin,
         s.fur,
         s.head,
         s.eyes,
@@ -287,7 +287,7 @@ contract Woolf is IWoolf, ERC721Enumerable, Ownable, Pausable {
 
   /** READ */
 
-  function getTokenTraits(uint256 tokenId) external view override returns (SheepWolf memory) {
+  function getTokenTraits(uint256 tokenId) external view override returns (PenguinOrca memory) {
     return tokenTraits[tokenId];
   }
 

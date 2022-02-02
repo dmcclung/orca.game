@@ -3,6 +3,6 @@
 pragma solidity ^0.8.0;
 
 interface IBerg {
-  function addManyToBarnAndPack(address account, uint16[] calldata tokenIds) external;
-  function randomWolfOwner(uint256 seed) external view returns (address);
+  function addManyToBergAndPack(address account, uint16[] calldata tokenIds) external;
+  function randomOrcaOwner(uint256 seed) external view returns (address);
 }
